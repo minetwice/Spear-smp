@@ -15,7 +15,7 @@ public class IceSpear extends ElementalSpear {
     @Override
     public void onAttack(Player player, Entity victim) {
         if (victim instanceof Player target) {
-            target.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 20 * 6, 3));
+            target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 20 * 6, 3));
         }
         player.getWorld().spawnParticle(Particle.SNOWFLAKE, victim.getLocation(), 20, 0.5, 1, 0.5, 0.2);
         player.sendMessage("§bFrozen for 6s!");
