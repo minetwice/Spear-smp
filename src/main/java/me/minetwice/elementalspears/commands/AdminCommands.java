@@ -7,6 +7,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.ChatColor;
 
 public class AdminCommands implements CommandExecutor {
@@ -34,7 +35,12 @@ public class AdminCommands implements CommandExecutor {
                 sender.sendMessage("Player not found.");
                 return true;
             }
-            target.getInventory().removeIf(item -> ElementalSpear.isSpear(item));
+            for (int i = 0; i < target.getInventory().getSize(); i++) {
+                ItemStack item = target.getInventory().getItem(i);
+                if (ElementalSpear.isSpear(item)) {
+                    target.getInventory().setItem(i, null);
+                }
+            }
             sender.sendMessage("All spears removed from " + target.getName());
             return true;
         }
