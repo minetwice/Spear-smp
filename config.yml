@@ -1,0 +1,5 @@
+reveal-duration-seconds: 300
+cooldown-seconds: 10
+join-message: "&6Welcome to &eElemental Spears!"
+title-receive: "&bYou have received a Spear!"
+subtitle-receive: "&7Use its elemental power!"
