@@ -14,7 +14,7 @@ public class TimeSpear extends ElementalSpear {
     @Override
     public void onAttack(Player player, Entity victim) {
         if (victim instanceof Player target) {
-            target.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 20 * 5, 2));
+            target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 20 * 5, 2));
             player.sendMessage("§bTime slowed for 5s!");
         }
     }
