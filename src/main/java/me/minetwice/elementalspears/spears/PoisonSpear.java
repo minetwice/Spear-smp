@@ -17,7 +17,7 @@ public class PoisonSpear extends ElementalSpear {
         if (victim instanceof Player target) {
             target.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 20 * 7, 1));
         }
-        player.getWorld().spawnParticle(Particle.SPELL, victim.getLocation(), 15, 0.3, 1, 0.3, 1);
+        player.getWorld().spawnParticle(Particle.SPELL_MOB, victim.getLocation(), 15, 0.3, 1, 0.3, 1);
         player.sendMessage("§2Poisoned for 7s!");
     }
     @Override
