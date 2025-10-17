@@ -1,1 +1,5 @@
-
+cooldown: 10
+coords-reveal-duration: 300
+join-message: "§bWelcome to §lElemental Spears§r! Unleash the elemental powers!"
+title-message: "§6Elemental Spears §bObtained!"
+subtitle-message: "§aUse your powers wisely!"
