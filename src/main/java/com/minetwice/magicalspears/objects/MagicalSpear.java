@@ -73,7 +73,7 @@ public enum MagicalSpear {
         "§7Drains enemy health to heal yourself",
         Particle.HEART,
         Sound.ENTITY_EXPERIENCE_ORB_PICKUP,
-        Color.FUCHSIA, // CHANGED FROM PINK
+        Color.FUCHSIA,
         35,
         new String[]{
             "§e• Drains health from enemies",
@@ -85,7 +85,7 @@ public enum MagicalSpear {
     
     POISON_SPEAR("§2Poison Spear", 
         "§7Shoots poison darts and creates toxic clouds",
-        Particle.SPELL, // CHANGED FROM SPELL_WITCH
+        Particle.SQUID_INK, // CHANGED FROM SPELL/SPELL_WITCH
         Sound.ENTITY_WITCH_AMBIENT,
         Color.GREEN,
         20,
