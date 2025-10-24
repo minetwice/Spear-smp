@@ -1,1 +1,23 @@
-
+name: MagicalSpears
+version: 1.0.0
+main: com.minetwice.magicalspears.MagicalSpearsPlugin
+api-version: "1.21"
+description: Magical Spears Plugin with unique abilities
+author: minetwice
+website: https://minetwice.com
+commands:
+  spear:
+    description: Main command for magical spears
+    usage: /spear <give|take|all|gui|grace|reveal|cooldown>
+    permission: magicalspears.use
+  magicalspears:
+    description: Alias for spear command
+    usage: /magicalspears <give|take|all|gui|grace|reveal|cooldown>
+    permission: magicalspears.use
+permissions:
+  magicalspears.use:
+    description: Access to magical spears commands
+    default: op
+  magicalspears.admin:
+    description: Admin permissions for magical spears
+    default: op
