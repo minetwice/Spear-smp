@@ -64,7 +64,7 @@ public enum MagicalSpear {
         new String[]{
             "§e• Drains health from enemies",
             "§e• Teleports targets randomly", 
-            "§e• Applies blindness and confusion",
+            "§e• Applies blindness and nausea",
             "§e• Creates void portal trap",
             "§e• Cooldown: 30 seconds"
         }),
@@ -73,7 +73,7 @@ public enum MagicalSpear {
         "§7Drains enemy health to heal yourself",
         Particle.HEART,
         Sound.ENTITY_EXPERIENCE_ORB_PICKUP,
-        Color.PINK,
+        Color.FUCHSIA, // CHANGED FROM PINK
         35,
         new String[]{
             "§e• Drains health from enemies",
@@ -85,7 +85,7 @@ public enum MagicalSpear {
     
     POISON_SPEAR("§2Poison Spear", 
         "§7Shoots poison darts and creates toxic clouds",
-        Particle.SPELL_WITCH,
+        Particle.SPELL, // CHANGED FROM SPELL_WITCH
         Sound.ENTITY_WITCH_AMBIENT,
         Color.GREEN,
         20,
