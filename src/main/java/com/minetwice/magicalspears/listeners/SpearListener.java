@@ -244,7 +244,7 @@ public class SpearListener implements Listener {
                         Location randomLoc = findSafeLocation(entity.getLocation(), 15);
                         entity.teleport(randomLoc);
                         ((LivingEntity) entity).addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 0));
-                        ((LivingEntity) entity).addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 120, 1)); // FIXED: CONFUSION -> NAUSEA
+                        ((LivingEntity) entity).addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 120, 1));
                     }
                 }
                 break;
@@ -415,7 +415,7 @@ public class SpearListener implements Listener {
                 entity.teleport(randomLoc);
                 
                 entity.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 80, 0));
-                entity.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 100, 1)); // FIXED: CONFUSION -> NAUSEA
+                entity.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 100, 1));
                 
                 player.sendMessage("§5Drained health from " + (entity instanceof Player ? ((Player) entity).getName() : "enemy"));
             }
@@ -435,7 +435,7 @@ public class SpearListener implements Listener {
                 }
                 Location projLoc = projectile.getLocation();
                 player.getWorld().spawnParticle(Particle.HEART, projLoc, 3, 0.2, 0.2, 0.2, 0.1);
-                player.getWorld().spawnParticle(Particle.HAPPY_VILLAGER, projLoc, 4, 0.3, 0.3, 0.3, 0.1); // FIXED: VILLAGER_HAPPY -> HAPPY_VILLAGER
+                player.getWorld().spawnParticle(Particle.HAPPY_VILLAGER, projLoc, 4, 0.3, 0.3, 0.3, 0.1);
             }
         }.runTaskTimer(MagicalSpearsPlugin.getInstance(), 0L, 2L);
         
@@ -449,7 +449,7 @@ public class SpearListener implements Listener {
                 double damage = Math.min(drainAmount, currentHealth - 1); // Don't kill, leave at least 0.5 heart
                 
                 if (damage > 0) {
-            entity.damage(damage, player);
+                    entity.damage(damage, player);
                     player.setHealth(Math.min(player.getHealth() + damage, player.getMaxHealth()));
                     
                     // Healing effects
@@ -474,8 +474,8 @@ public class SpearListener implements Listener {
                     return;
                 }
                 Location projLoc = projectile.getLocation();
-                player.getWorld().spawnParticle(Particle.SPELL, projLoc, 6, 0.2, 0.2, 0.2, 0.1); // FIXED: SPELL_WITCH -> SPELL
-                player.getWorld().spawnParticle(Particle.SMOKE, projLoc, 3, 0.3, 0.3, 0.3, 0.1); // FIXED: SMOKE_NORMAL -> SMOKE
+                player.getWorld().spawnParticle(Particle.SQUID_INK, projLoc, 6, 0.2, 0.2, 0.2, 0.1); // CHANGED: SPELL -> SQUID_INK
+                player.getWorld().spawnParticle(Particle.SMOKE, projLoc, 3, 0.3, 0.3, 0.3, 0.1);
             }
         }.runTaskTimer(MagicalSpearsPlugin.getInstance(), 0L, 1L);
         
@@ -512,7 +512,7 @@ public class SpearListener implements Listener {
                 }
                 
                 // Check for entity hits
-                            for (Entity entity : projectile.getNearbyEntities(1.5, 1.5, 1.5)) {
+                for (Entity entity : projectile.getNearbyEntities(1.5, 1.5, 1.5)) {
                     if (entity instanceof LivingEntity && entity != ((LivingEntity) projectile.getShooter())) {
                         callback.onHit((LivingEntity) entity, entity.getLocation());
                         projectile.remove();
@@ -564,7 +564,7 @@ public class SpearListener implements Listener {
         AreaEffectCloud cloud = center.getWorld().spawn(center, AreaEffectCloud.class);
         cloud.setRadius(4.0f);
         cloud.setDuration(200); // 10 seconds
-        cloud.setParticle(Particle.SPELL); // FIXED: SPELL_WITCH -> SPELL
+        cloud.setParticle(Particle.SQUID_INK); // CHANGED: SPELL -> SQUID_INK
         cloud.setColor(Color.GREEN);
         cloud.addCustomEffect(new PotionEffect(PotionEffectType.POISON, 100, 1), true);
         cloud.setSource(owner);
