@@ -1,1 +1,49 @@
+# Magical Spears Configuration
 
+# Cooldown settings
+cooldowns:
+  lightning_spear: 25
+  ice_spear: 20
+  fire_spear: 15
+  void_spear: 30
+  life_spear: 35
+  poison_spear: 20
+
+# Grace period settings
+grace-period:
+  default-time: 15
+  pvp-disabled-message: "&cPvP is disabled during grace period!"
+
+# Reveal settings
+reveal:
+  default-time: 3
+  show-to-all: true
+
+# Combo system
+combo:
+  max-time-between-hits: 2
+  reset-time: 5
+  effects:
+    speed-at: 3
+    strength-at: 5
+    regeneration-at: 8
+
+# Ultimate ability
+ultimate:
+  charge-per-hit: 15
+  required-charge: 100
+
+# Level system
+leveling:
+  exp-per-hit: 5
+  exp-per-kill: 25
+  max-level: 10
+
+# Messages
+messages:
+  cooldown: "&cAbility on cooldown! {time}s remaining"
+  spear-given: "&aYou received the {spear}&a!"
+  grace-started: "&aGrace period started for {minutes} minutes!"
+  grace-ended: "&cGrace period has ended! PvP is now enabled."
+  combo: "&6Combo: &e{count} hits!"
+  level-up: "&6🎉 {spear} &6leveled up to &e{level}&6!"
