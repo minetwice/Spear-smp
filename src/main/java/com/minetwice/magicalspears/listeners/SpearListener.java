@@ -20,7 +20,9 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class SpearListener implements Listener {
     
@@ -225,11 +227,52 @@ public class SpearListener implements Listener {
                 }
                 break;
                 
-            // Add other ultimate abilities...
+            case FIRE_SPEAR:
+                // Fire explosion
+                player.getWorld().createExplosion(player.getLocation(), 6.0f, true, false, player);
+                for (Entity entity : player.getNearbyEntities(8, 8, 8)) {
+                    if (entity instanceof LivingEntity && entity != player) {
+                        ((LivingEntity) entity).setFireTicks(200);
+                    }
+                }
+                break;
+                
+            case VOID_SPEAR:
+                // Void vortex
+                for (Entity entity : player.getNearbyEntities(12, 12, 12)) {
+                    if (entity instanceof LivingEntity && entity != player) {
+                        Location randomLoc = findSafeLocation(entity.getLocation(), 15);
+                        entity.teleport(randomLoc);
+                        ((LivingEntity) entity).addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 0));
+                        ((LivingEntity) entity).addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 120, 1));
+                    }
+                }
+                break;
+                
+            case LIFE_SPEAR:
+                // Healing wave
+                for (Entity entity : player.getNearbyEntities(10, 10, 10)) {
+                    if (entity instanceof Player) {
+                        Player targetPlayer = (Player) entity;
+                        targetPlayer.setHealth(Math.min(targetPlayer.getHealth() + 8.0, targetPlayer.getMaxHealth()));
+                        targetPlayer.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 100, 2));
+                        targetPlayer.sendMessage("§aYou were healed by " + player.getName() + "'s ultimate!");
+                    }
+                }
+                break;
+                
+            case POISON_SPEAR:
+                // Poison nova
+                for (Entity entity : player.getNearbyEntities(10, 10, 10)) {
+                    if (entity instanceof LivingEntity && entity != player) {
+                        ((LivingEntity) entity).addPotionEffect(new PotionEffect(PotionEffectType.POISON, 200, 2));
+                        ((LivingEntity) entity).addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1));
+                    }
+                }
+                break;
         }
     }
     
-    // [Previous projectile shooting methods remain the same...]
     private void shootLightningProjectile(Player player, Location location, Vector direction) {
         Snowball projectile = player.launchProjectile(Snowball.class);
         projectile.setVelocity(direction.multiply(2.0));
@@ -242,147 +285,169 @@ public class SpearListener implements Listener {
                 }
                 Location projLoc = projectile.getLocation();
                 player.getWorld().spawnParticle(Particle.ELECTRIC_SPARK, projLoc, 5, 0.2, 0.2, 0.2, 0.1);
+                player.getWorld().spawnParticle(Particle.CRIT, projLoc, 3, 0.1, 0.1, 0.1, 0.1);
             }
         }.runTaskTimer(MagicalSpearsPlugin.getInstance(), 0L, 1L);
         
         handleProjectileHit(projectile, (hitEntity, hitLocation) -> {
+            // Strike lightning
             player.getWorld().strikeLightningEffect(hitLocation);
+            
+            // Damage and knockback
             if (hitEntity instanceof LivingEntity) {
                 LivingEntity entity = (LivingEntity) hitEntity;
                 entity.damage(8.0, player);
+                
+                // Strong knockback
                 Vector knockback = entity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
                 entity.setVelocity(knockback.multiply(2.0).setY(0.8));
+                
+                // Chain lightning to nearby entities
+                for (Entity nearby : entity.getNearbyEntities(5, 3, 5)) {
+                    if (nearby instanceof LivingEntity && nearby != entity && nearby != player) {
+                        player.getWorld().strikeLightningEffect(nearby.getLocation());
+                        ((LivingEntity) nearby).damage(4.0, player);
+                    }
+                }
             }
         });
     }
     
-    // [Other projectile methods similar to previous implementation...]
-    
-    private void handleProjectileHit(Projectile projectile, ProjectileHitCallback callback) {
+    private void shootIceProjectile(Player player, Location location, Vector direction) {
+        Snowball projectile = player.launchProjectile(Snowball.class);
+        projectile.setVelocity(direction.multiply(1.8));
+        
+        // Ice trail effect
         new BukkitRunnable() {
             public void run() {
                 if (projectile.isDead() || !projectile.isValid()) {
                     this.cancel();
-                    if (projectile.getLocation() != null) {
-                        callback.onHit(null, projectile.getLocation());
-                    }
                     return;
                 }
+                Location projLoc = projectile.getLocation();
+                player.getWorld().spawnParticle(Particle.SNOWFLAKE, projLoc, 8, 0.2, 0.2, 0.2, 0.1);
                 
-                for (Entity entity : projectile.getNearbyEntities(1.5, 1.5, 1.5)) {
-                    if (entity instanceof LivingEntity && entity != ((LivingEntity) projectile.getShooter())) {
-                        callback.onHit((LivingEntity) entity, entity.getLocation());
-                        projectile.remove();
-                        this.cancel();
-                        return;
-                    }
+                // Create ice blocks on ground
+                if (projLoc.getBlock().getType() == Material.AIR && 
+                    projLoc.clone().add(0, -1, 0).getBlock().getType().isSolid()) {
+                    projLoc.getBlock().setType(Material.FROSTED_ICE);
                 }
             }
-        }.runTaskTimer(MagicalSpearsPlugin.getInstance(), 1L, 1L);
-    }
-    
-    private interface ProjectileHitCallback {
-        void onHit(LivingEntity hitEntity, Location hitLocation);
-    }
-    
-    private void applyMeleeEffects(Player attacker, Player target, MagicalSpear spear) {
-        // Basic melee effects
-        switch (spear) {
-            case LIGHTNING_SPEAR:
-                target.getWorld().strikeLightningEffect(target.getLocation());
-                target.damage(3.0);
-                break;
-            case ICE_SPEAR:
-                target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 60, 1));
-                break;
-            case FIRE_SPEAR:
-                target.setFireTicks(60);
-                break;
-            case VOID_SPEAR:
-                target.damage(2.0, attacker);
-                attacker.setHealth(Math.min(attacker.getHealth() + 1.0, attacker.getMaxHealth()));
-                break;
-            case LIFE_SPEAR:
-                target.damage(2.0, attacker);
-                attacker.setHealth(Math.min(attacker.getHealth() + 2.0, attacker.getMaxHealth()));
-                break;
-            case POISON_SPEAR:
-                target.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 60, 0));
-                break;
-        }
+        }.runTaskTimer(MagicalSpearsPlugin.getInstance(), 0L, 2L);
         
-        showActionBar(attacker, "§6" + spear.getDisplayName() + " §emelee effect!");
-    }
-    
-    private void showCoordinates(Player target) {
-        String coordMessage = String.format("§c%s's Location: §fX:%.1f Y:%.1f Z:%.1f",
-            target.getName(),
-            target.getLocation().getX(),
-            target.getLocation().getY(),
-            target.getLocation().getZ());
-        
-        for (Player online : Bukkit.getOnlinePlayers()) {
-            online.sendActionBar(net.kyori.adventure.text.Component.text(coordMessage));
-        }
-    }
-    
-    private void showActionBar(Player player, String message) {
-        player.sendActionBar(net.kyori.adventure.text.Component.text(message));
-    }
-    
-    @EventHandler
-    public void onInventoryClick(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player)) return;
-        
-        Player player = (Player) event.getWhoClicked();
-        String title = net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().serialize(event.getView().title());
-        
-        if (title.contains("Magical Spears")) {
-            event.setCancelled(true);
-            
-            if (event.getCurrentItem() == null) return;
-            
-            if (event.getCurrentItem().getType() == Material.BARRIER) {
-                player.closeInventory();
-                return;
+        handleProjectileHit(projectile, (hitEntity, hitLocation) -> {
+            // Freeze effect
+            if (hitEntity instanceof LivingEntity) {
+                LivingEntity entity = (LivingEntity) hitEntity;
+                entity.damage(6.0, player);
+                
+                // Freeze effects
+                entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 100, 3));
+                entity.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 100, 1));
+                
+                // Knockback
+                Vector knockback = entity.getLocation().toVector().subtract(player.getLocation().toVector()).normalize();
+                entity.setVelocity(knockback.multiply(1.5).setY(0.6));
+                
+                // Create ice area
+                createIceArea(hitLocation);
             }
-            
-            MagicalSpear spear = MagicalSpear.fromItem(event.getCurrentItem());
-            if (spear != null) {
-                spearManager.giveSpear(player, spear);
-                player.closeInventory();
-            }
-        }
-    }
-    
-    // Other projectile methods (ice, fire, void, life, poison) remain similar to previous implementation
-    private void shootIceProjectile(Player player, Location location, Vector direction) {
-        Snowball projectile = player.launchProjectile(Snowball.class);
-        projectile.setVelocity(direction.multiply(1.8));
-        // ... implementation
+        });
     }
     
     private void shootFireProjectile(Player player, Location location, Vector direction) {
         Fireball fireball = player.launchProjectile(Fireball.class);
         fireball.setVelocity(direction.multiply(1.5));
-        // ... implementation
+        fireball.setIsIncendiary(false); // We'll handle explosion ourselves
+        
+        // Fire trail
+        new BukkitRunnable() {
+            public void run() {
+                if (fireball.isDead() || !fireball.isValid()) {
+                    this.cancel();
+                    return;
+                }
+                player.getWorld().spawnParticle(Particle.FLAME, fireball.getLocation(), 5, 0.2, 0.2, 0.2, 0.1);
+            }
+        }.runTaskTimer(MagicalSpearsPlugin.getInstance(), 0L, 1L);
+        
+        handleProjectileHit(fireball, (hitEntity, hitLocation) -> {
+            // Fire explosion
+            player.getWorld().createExplosion(hitLocation, 3.0f, true, false, player);
+            
+            // Set fire to nearby entities
+            for (Entity nearby : hitLocation.getWorld().getNearbyEntities(hitLocation, 4, 3, 4)) {
+                if (nearby instanceof LivingEntity && nearby != player) {
+                    ((LivingEntity) nearby).setFireTicks(100); // 5 seconds
+                }
+            }
+        });
     }
     
     private void shootVoidProjectile(Player player, Location location, Vector direction) {
         Snowball projectile = player.launchProjectile(Snowball.class);
         projectile.setVelocity(direction.multiply(2.2));
-        // ... implementation
+        
+        // Void trail
+        new BukkitRunnable() {
+            public void run() {
+                if (projectile.isDead() || !projectile.isValid()) {
+                    this.cancel();
+                    return;
+                }
+                Location projLoc = projectile.getLocation();
+                player.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, projLoc, 6, 0.2, 0.2, 0.2, 0.1);
+                player.getWorld().spawnParticle(Particle.PORTAL, projLoc, 3, 0.3, 0.3, 0.3, 0.1);
+            }
+        }.runTaskTimer(MagicalSpearsPlugin.getInstance(), 0L, 1L);
+        
+        handleProjectileHit(projectile, (hitEntity, hitLocation) -> {
+            if (hitEntity instanceof LivingEntity) {
+                LivingEntity entity = (LivingEntity) hitEntity;
+                
+                // Drain health
+                double drainAmount = 5.0;
+                entity.damage(drainAmount, player);
+                player.setHealth(Math.min(player.getHealth() + 3.0, player.getMaxHealth()));
+                
+                // Teleport and negative effects
+                Location randomLoc = findSafeLocation(entity.getLocation(), 8);
+                entity.teleport(randomLoc);
+                
+                entity.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 80, 0));
+                entity.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 100, 1));
+                
+                player.sendMessage("§5Drained health from " + (entity instanceof Player ? ((Player) entity).getName() : "enemy"));
+            }
+        });
     }
     
     private void shootLifeProjectile(Player player, Location location, Vector direction) {
         Snowball projectile = player.launchProjectile(Snowball.class);
         projectile.setVelocity(direction.multiply(1.8));
-        // ... implementation
-    }
-    
-    private void shootPoisonProjectile(Player player, Location location, Vector direction) {
-        Snowball projectile = player.launchProjectile(Snowball.class);
-        projectile.setVelocity(direction.multiply(1.7));
-        // ... implementation
-    }
-                                                                                 }
+        
+        // Life energy trail
+        new BukkitRunnable() {
+            public void run() {
+                if (projectile.isDead() || !projectile.isValid()) {
+                    this.cancel();
+                    return;
+                }
+                Location projLoc = projectile.getLocation();
+                player.getWorld().spawnParticle(Particle.HEART, projLoc, 3, 0.2, 0.2, 0.2, 0.1);
+                player.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, projLoc, 4, 0.3, 0.3, 0.3, 0.1);
+            }
+        }.runTaskTimer(MagicalSpearsPlugin.getInstance(), 0L, 2L);
+        
+        handleProjectileHit(projectile, (hitEntity, hitLocation) -> {
+            if (hitEntity instanceof LivingEntity) {
+                LivingEntity entity = (LivingEntity) hitEntity;
+                
+                // Drain health and heal player
+                double drainAmount = 7.0;
+                double currentHealth = entity.getHealth();
+                double damage = Math.min(drainAmount, currentHealth - 1); // Don't kill, leave at least 0.5 heart
+                
+                if (damage > 0) {
+                    entity.damage(damage, player);
+                    player.setHealth(Math.min(player.getHe
