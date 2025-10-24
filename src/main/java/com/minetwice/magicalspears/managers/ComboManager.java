@@ -74,7 +74,7 @@ public class ComboManager {
                 player.sendMessage("§bCombo Bonus: Speed I for 5 seconds!");
                 break;
             case 5:
-                player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 80, 0));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 80, 0)); // CHANGED FROM INCREASE_DAMAGE
                 player.sendMessage("§cCombo Bonus: Strength I for 4 seconds!");
                 break;
             case 8:
